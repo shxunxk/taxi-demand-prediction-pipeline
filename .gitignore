@@ -1,0 +1,6 @@
+data/
+*.parquet
+fraudDetectionEnv/
+__pycache__/
+.env/
+models/
