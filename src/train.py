@@ -85,4 +85,7 @@ if month == 12:
 else:
     month += 1
 
-joblib.dump(best_model, f"models/demand_model_{year}-{month:02d}.pkl")
+OUTPUT_DIR = "models"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+joblib.dump(best_model, f"{OUTPUT_DIR}/demand_model_{year}-{month:02d}.pkl")
