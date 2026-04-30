@@ -4,8 +4,9 @@ from sklearn.model_selection import TimeSeriesSplit, RandomizedSearchCV
 from sklearn.metrics import mean_absolute_error
 from pathlib import Path
 from preprocess import preprocess
-import glob
 import pandas as pd
+from pathlib import Path
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "windowData"
@@ -76,7 +77,7 @@ print("Ratio:", mae / y_test.mean())
 
 
 
-year, month = map(int, files[-1].split("_")[-1].split(".")[0].split("-"))
+year, month = map(int, files[-1].stem.split("_")[-1].split('.')[0].split('-'))
 
 if month == 12:
     year += 1
