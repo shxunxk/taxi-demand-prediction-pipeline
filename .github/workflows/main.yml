@@ -1,0 +1,42 @@
+name: Train Taxi Demand Model
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "src/**"
+      - "data/**"
+      - "requirements.txt"
+
+jobs:
+  train-model:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Get code
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # 2. Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 4. Run training pipeline (this includes preprocess + train)
+      - name: Run training
+        run: |
+          python src/train.py
+
+      # 5. Upload trained model
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: taxi-demand-model
+          path: models/
