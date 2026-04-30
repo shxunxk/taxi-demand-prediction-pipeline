@@ -7,7 +7,10 @@ from preprocess import preprocess
 import glob
 import pandas as pd
 
-files = sorted(glob.glob("../windowData/*.parquet"))
+BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = BASE_DIR / "windowData"
+
+files = sorted(DATA_DIR.glob("*.parquet"))
 
 processed_list = []
 
