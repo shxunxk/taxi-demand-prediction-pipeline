@@ -2,4 +2,3 @@ data/
 fraudDetectionEnv/
 __pycache__/
 .env/
-models/
