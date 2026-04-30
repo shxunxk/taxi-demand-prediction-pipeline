@@ -4,11 +4,19 @@ from sklearn.model_selection import TimeSeriesSplit, RandomizedSearchCV
 from sklearn.metrics import mean_absolute_error
 from pathlib import Path
 from preprocess import preprocess
+import glob
+import pandas as pd
 
+files = sorted(glob.glob("../windowData/*.parquet"))
 
-path = "./data/yellow_tripdata_2026-02.parquet"
+processed_list = []
 
-df = preprocess(path)
+for i in files:
+    df = pd.read_parquet(i, columns=["tpep_pickup_datetime", "PULocationID", "passenger_count", "trip_distance"])
+    df = preprocess(df)
+    processed_list.append(df)
+
+df = pd.concat(processed_list, ignore_index=True)
 
 # sort for safety
 df = df.sort_values("date")
@@ -65,7 +73,12 @@ print("Ratio:", mae / y_test.mean())
 
 
 
-file_stem = Path(path).stem
-name_suffix = file_stem.split("_")[-1]
+year, month = map(int, files[-1].split("_")[-1].split(".")[0].split("-"))
 
-joblib.dump(best_model, f"models/demand_model_{name_suffix}.pkl")
+if month == 12:
+    year += 1
+    month = 1
+else:
+    month += 1
+
+joblib.dump(best_model, f"models/demand_model_{year}-{month:02d}.pkl")

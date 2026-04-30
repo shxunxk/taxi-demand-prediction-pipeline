@@ -5,7 +5,7 @@ on:
     branches: [ main ]
     paths:
       - "src/**"
-      - "data/**"
+      - "windowData/**"
       - "requirements.txt"
 
 jobs:

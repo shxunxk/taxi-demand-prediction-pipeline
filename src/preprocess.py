@@ -15,13 +15,7 @@ def time_bucket(hour: int):
     else:
         return 'night'
 
-
-def preprocess(path):
-
-    df = pd.read_parquet(
-        path,
-        columns=["tpep_pickup_datetime", "PULocationID", "passenger_count", "trip_distance"]
-    )
+def preprocess(df):
 
     # datetime
     df["pickup_datetime"] = pd.to_datetime(df["tpep_pickup_datetime"])
@@ -70,6 +64,10 @@ def preprocess(path):
 
     agg_df["rolling_std_3"] = agg_df.groupby("loc_time")["demand"].transform(
         lambda x: x.shift(1).rolling(3).std()
+    )
+
+    agg_df["rolling_std_7"] = agg_df.groupby("loc_time")["demand"].transform(
+        lambda x: x.shift(1).rolling(7).std()
     )
 
     agg_df = agg_df.dropna()
