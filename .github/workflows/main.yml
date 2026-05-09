@@ -34,6 +34,10 @@ jobs:
         run: |
           python src/train.py
 
+      - name: Accuracy testing
+        run: |
+          python src/validation.py
+
       # 5. Upload trained model
       - name: Upload model artifact
         uses: actions/upload-artifact@v4

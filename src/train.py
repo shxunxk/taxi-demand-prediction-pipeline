@@ -7,9 +7,12 @@ from preprocess import preprocess
 import pandas as pd
 from pathlib import Path
 import os
+import sys
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "windowData"
+
+req_accuracy = 20
 
 files = sorted(DATA_DIR.glob("*.parquet"))
 
@@ -22,7 +25,6 @@ for i in files:
 
 df = pd.concat(processed_list, ignore_index=True)
 
-# sort for safety
 df = df.sort_values("date")
 
 split_date = df["date"].quantile(0.8)
@@ -65,17 +67,16 @@ search.fit(X_train, y_train)
 
 best_model = search.best_estimator_
 
-
-
 y_pred = best_model.predict(X_test)
 
 mae = mean_absolute_error(y_test, y_pred)
 print("MAE:", mae)
 
-print("Ratio:", mae / y_test.mean())
+if(mae < req_accuracy):
+    print(f"The model has low accuracy hence not saved")
+    sys.exit(0)
 
-
-
+print("Model accepted")
 
 year, month = map(int, files[-1].stem.split("_")[-1].split('.')[0].split('-'))
 
@@ -89,3 +90,5 @@ OUTPUT_DIR = "models"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 joblib.dump(best_model, f"{OUTPUT_DIR}/demand_model_{year}-{month:02d}.pkl")
+
+print("Model saved")
