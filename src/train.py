@@ -9,10 +9,12 @@ from pathlib import Path
 import os
 import sys
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "windowData"
 
-req_accuracy = 20
+'''generating dataset again because of airflow and github ci/cd'''
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+DATA_DIR = BASE_DIR / "windowData"
 
 files = sorted(DATA_DIR.glob("*.parquet"))
 
@@ -24,13 +26,13 @@ for i in files:
     processed_list.append(df)
 
 df = pd.concat(processed_list, ignore_index=True)
-
 df = df.sort_values("date")
-
 split_date = df["date"].quantile(0.8)
 
 train = df[df["date"] <= split_date]
 test = df[df["date"] > split_date]
+
+'''Instead of this extract the temporary dataframes'''
 
 X_train = train.drop(columns=["demand", "date"])
 y_train = train["demand"]
@@ -38,8 +40,7 @@ y_train = train["demand"]
 X_test = test.drop(columns=["demand", "date"])
 y_test = test["demand"]
 
-
-
+req_accuracy = 20
 
 param_dist = {
     "n_estimators": [100, 200, 300],

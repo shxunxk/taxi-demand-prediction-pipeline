@@ -1,3 +1,4 @@
+from pathlib import Path
 import pandas as pd
 import numpy as np
 
@@ -82,3 +83,36 @@ def preprocess(df):
     agg_df = agg_df.drop(columns=["loc_time"])
 
     return agg_df
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+DATA_DIR = BASE_DIR / "windowData"
+
+files = sorted(DATA_DIR.glob("*.parquet"))
+
+if __name__ == "__main__":
+
+    processed_list = []
+
+    for i in files:
+        df = pd.read_parquet(i, columns=["tpep_pickup_datetime", "PULocationID", "passenger_count", "trip_distance"])
+        df = preprocess(df)
+        processed_list.append(df)
+
+    df = pd.concat(processed_list, ignore_index=True)
+    df = df.sort_values("date")
+    split_date = df["date"].quantile(0.8)
+
+    train = df[df["date"] <= split_date]
+    test = df[df["date"] > split_date]
+
+    X_train = train.drop(columns=["demand", "date"])
+    y_train = train["demand"]
+
+    X_test = test.drop(columns=["demand", "date"])
+    y_test = test["demand"]
+
+    
+
+
+
