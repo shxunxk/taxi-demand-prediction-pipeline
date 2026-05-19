@@ -1,6 +1,7 @@
 from pathlib import Path
 import pandas as pd
 import numpy as np
+import mlflow
 
 def time_bucket(hour: int):
     if 0 <= hour <= 3:
@@ -106,13 +107,31 @@ if __name__ == "__main__":
     train = df[df["date"] <= split_date]
     test = df[df["date"] > split_date]
 
-    X_train = train.drop(columns=["demand", "date"])
-    y_train = train["demand"]
+    train.to_parquet("trainData.parquet")
+    test.to_parquet("testData.parquet")
 
-    X_test = test.drop(columns=["demand", "date"])
-    y_test = test["demand"]
+    with mlflow.start_run() as run:
 
-    
+        mlflow.log_artifact(
+            "trainData.parquet",
+            artifact_path="datasets/intermediate"
+        )
 
+        mlflow.log_artifact(
+            "testData.parquet",
+            artifact_path="datasets/intermediate"
+        )
 
+        run_id = run.info.run_id
 
+        print(run_id)
+
+    print("Parquet logged")
+
+    RUN_ID_FILE = Path("metadata/current_run_id.txt")
+
+    def save_run_id(run_id: str):
+        RUN_ID_FILE.parent.mkdir(exist_ok=True)
+
+        with open(RUN_ID_FILE, "w") as f:
+            f.write(run_id)

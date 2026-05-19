@@ -15,8 +15,13 @@ with DAG(
     )
 
     train = BashOperator(
-        task_id="train_model",
+        task_id="preprocess_data",
         bash_command="python /opt/airflow/src/preprocess.py"
+    )
+
+    train = BashOperator(
+        task_id="train_model",
+        bash_command="python /opt/airflow/src/train.py"
     )
 
     ingest >> train

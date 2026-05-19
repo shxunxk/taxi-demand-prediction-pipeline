@@ -1,4 +1,4 @@
 data/
-fraudDetectionEnv/
+taxiPredictionEnv/
 __pycache__/
 .env/

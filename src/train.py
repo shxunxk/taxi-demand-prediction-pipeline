@@ -3,36 +3,34 @@ from xgboost import XGBRegressor
 from sklearn.model_selection import TimeSeriesSplit, RandomizedSearchCV
 from sklearn.metrics import mean_absolute_error
 from pathlib import Path
-from preprocess import preprocess
 import pandas as pd
 from pathlib import Path
 import os
 import sys
+import mlflow
+from datetime import datetime
 
+RUN_ID_FILE = Path("metadata/current_run_id.txt")
+def load_run_id() -> str:
+    with open(RUN_ID_FILE, "r") as f:
+        return f.read().strip()
 
-'''generating dataset again because of airflow and github ci/cd'''
+id = load_run_id()
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+client = mlflow.tracking.MlflowClient()
 
-DATA_DIR = BASE_DIR / "windowData"
+train_path = client.download_artifacts(
+    run_id=id,
+    path="datasets/intermediate/trainData.parquet"
+)
 
-files = sorted(DATA_DIR.glob("*.parquet"))
+test_path = client.download_artifacts(
+    run_id=id,
+    path="datasets/intermediate/testData.parquet"
+)
 
-processed_list = []
-
-for i in files:
-    df = pd.read_parquet(i, columns=["tpep_pickup_datetime", "PULocationID", "passenger_count", "trip_distance"])
-    df = preprocess(df)
-    processed_list.append(df)
-
-df = pd.concat(processed_list, ignore_index=True)
-df = df.sort_values("date")
-split_date = df["date"].quantile(0.8)
-
-train = df[df["date"] <= split_date]
-test = df[df["date"] > split_date]
-
-'''Instead of this extract the temporary dataframes'''
+train = pd.read_parquet(train_path)
+test = pd.read_parquet(test_path)
 
 X_train = train.drop(columns=["demand", "date"])
 y_train = train["demand"]
@@ -79,7 +77,10 @@ if(mae < req_accuracy):
 
 print("Model accepted")
 
-year, month = map(int, files[-1].stem.split("_")[-1].split('.')[0].split('-'))
+current_date = datetime.now()
+
+year = current_date.year
+month = current_date.month
 
 if month == 12:
     year += 1

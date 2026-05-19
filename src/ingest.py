@@ -1,7 +1,7 @@
 from pathlib import Path
 import shutil
 
-RAW_DIR = Path("rawData")
+RAW_DIR = Path("data")
 WINDOW_DIR = Path("windowData")
 WINDOW_SIZE = 3
 
