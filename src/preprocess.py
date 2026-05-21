@@ -1,10 +1,8 @@
 from pathlib import Path
 import tempfile
-
-import mlflow
 import numpy as np
 import pandas as pd
-
+import boto3
 from paths import METADATA_DIR, RUN_ID_FILE, WINDOW_DATA_DIR
 
 def time_bucket(hour: int):
@@ -107,21 +105,9 @@ if __name__ == "__main__":
     train = df[df["date"] <= split_date]
     test = df[df["date"] > split_date]
 
-    METADATA_DIR.mkdir(parents=True, exist_ok=True)
+    INTERMEDIATE_DIR = Path(os.environ.get("PIPELINE_TEMP_DIR", tempfile.gettempdir())) / "intermediate"
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        train_path = Path(tmpdir) / "trainData.parquet"
-        test_path = Path(tmpdir) / "testData.parquet"
-        train.to_parquet(train_path)
-        test.to_parquet(test_path)
+    INTERMEDIATE_DIR.mkdir(parents=True, exist_ok=True)
 
-        with mlflow.start_run() as run:
-            mlflow.log_artifact(str(train_path), artifact_path="datasets/intermediate")
-            mlflow.log_artifact(str(test_path), artifact_path="datasets/intermediate")
-            run_id = run.info.run_id
-
-        RUN_ID_FILE.write_text(run_id, encoding="utf-8")
-        print(f"MLflow run_id: {run_id}")
-        print(f"Saved run id to {RUN_ID_FILE}")
-
-    print("Parquet logged to MLflow")
+    train_df.to_csv(INTERMEDIATE_DIR / "train.csv", index=False)
+    test_df.to_csv(INTERMEDIATE_DIR / "test.csv", index=False)

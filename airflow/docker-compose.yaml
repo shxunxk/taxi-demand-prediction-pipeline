@@ -22,25 +22,12 @@ x-airflow-common:
     GITHUB_REPO_URL: ${GITHUB_REPO_URL:?Set GITHUB_REPO_URL in airflow/.env}
     GIT_BRANCH: ${GIT_BRANCH:-main}
     GITHUB_TOKEN: ${GITHUB_TOKEN:-}
-    PIPELINE_DATA_DIR: /opt/airflow
     ML_REPO_DIR: /opt/airflow/ml-repo
-    MLFLOW_TRACKING_URI: ${MLFLOW_TRACKING_URI:-file:///opt/airflow/mlflow}
-    # When object store compose is merged, use pipeline keys (not MinIO root) — same pattern as IAM in AWS.
     S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://minio:9000}
     AWS_ACCESS_KEY_ID: ${MINIO_PIPELINE_ACCESS_KEY:-}
     AWS_SECRET_ACCESS_KEY: ${MINIO_PIPELINE_SECRET_KEY:-}
-  volumes:
-    - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
-    - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
-    - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
-    - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
-    # Pipeline data only — no local src/ mount; code comes from GitHub into ml-repo volume
-    - ${PIPELINE_DATA_HOST_DIR}/data:/opt/airflow/data
-    - ${PIPELINE_DATA_HOST_DIR}/windowData:/opt/airflow/windowData
-    - ${PIPELINE_DATA_HOST_DIR}/models:/opt/airflow/models
-    - ${PIPELINE_DATA_HOST_DIR}/metadata:/opt/airflow/metadata
-    - ${PIPELINE_DATA_HOST_DIR}/mlflow:/opt/airflow/mlflow
-    - ml-repo-volume:/opt/airflow/ml-repo
+    PIPELINE_TEMP_DIR: /opt/airflow/tmp
+
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on

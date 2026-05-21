@@ -3,8 +3,8 @@ import shutil
 import boto3
 from datetime import datetime
 
-from paths import RAW_DATA_DIR, WINDOW_DATA_DIR
-
+WINDOW_DATA_DIR = Path(os.environ.get("PIPELINE_TEMP_DIR", tempfile.gettempdir())) / "windowData"
+WINDOW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 s3 = boto3.client(
     "s3",
@@ -42,9 +42,9 @@ for i in range(WINDOW_SIZE):
         local_path = WINDOW_DATA_DIR / filename
 
         s3.download_file(
-            BUCKET_NAME,     # bucket
-            filename,        # object key
-            str(local_path)  # local destination
+            BUCKET_NAME,
+            filename,
+            str(local_path)
         )
 
         latest_files.append(local_path)

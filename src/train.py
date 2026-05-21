@@ -1,6 +1,9 @@
 import sys
 from datetime import datetime
-
+from pathlib import Path
+import os
+import tempfile
+import shutil
 import joblib
 import mlflow
 import pandas as pd
@@ -8,32 +11,13 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import RandomizedSearchCV, TimeSeriesSplit
 from xgboost import XGBRegressor
 
-from paths import MODELS_DIR, RUN_ID_FILE
 
+INTERMEDIATE_DIR = Path(
+    os.environ.get("PIPELINE_TEMP_DIR", tempfile.gettempdir())
+) / "intermediate"
 
-def load_run_id() -> str:
-    if not RUN_ID_FILE.exists():
-        raise FileNotFoundError(
-            f"Missing {RUN_ID_FILE}. Run preprocess first."
-        )
-    return RUN_ID_FILE.read_text(encoding="utf-8").strip()
-
-
-run_id = load_run_id()
-client = mlflow.tracking.MlflowClient()
-
-train_path = client.download_artifacts(
-    run_id=run_id,
-    path="datasets/intermediate/trainData.parquet",
-)
-
-test_path = client.download_artifacts(
-    run_id=run_id,
-    path="datasets/intermediate/testData.parquet",
-)
-
-train = pd.read_parquet(train_path)
-test = pd.read_parquet(test_path)
+train = pd.read_csv(INTERMEDIATE_DIR / "train.csv")
+test = pd.read_csv(INTERMEDIATE_DIR / "test.csv")
 
 X_train = train.drop(columns=["demand", "date"])
 y_train = train["demand"]
@@ -81,12 +65,12 @@ current_date = datetime.now()
 year = current_date.year
 month = current_date.month
 
-if month == 12:
-    year += 1
-    month = 1
-else:
-    month += 1
-
+MODELS_DIR = Path(os.environ.get("PIPELINE_TEMP_DIR", tempfile.gettempdir())) / "models"
 MODELS_DIR.mkdir(parents=True, exist_ok=True)
 joblib.dump(best_model, MODELS_DIR / f"demand_model_{year}-{month:02d}.pkl")
+
 print(f"Model saved to {MODELS_DIR}")
+WINDOW_DATA_DIR = Path(os.environ.get("PIPELINE_TEMP_DIR", tempfile.gettempdir())) / "windowData"
+
+shutil.rmtree(INTERMEDIATE_DIR, ignore_errors=True)
+shutil.rmtree(WINDOW_DATA_DIR, ignore_errors=True)
