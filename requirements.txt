@@ -83,8 +83,6 @@ pydantic_core==2.46.4
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
-pytz==2026.2
-pywin32==311
 PyYAML==6.0.3
 requests==2.34.2
 scikit-learn==1.8.0
@@ -158,8 +156,6 @@ pydantic_core==2.46.4
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
-pytz==2026.2
-pywin32==311
 PyYAML==6.0.3
 requests==2.34.2
 s3transfer==0.17.0
@@ -234,8 +230,6 @@ pydantic_core==2.46.4
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
-pytz==2026.2
-pywin32==311
 PyYAML==6.0.3
 requests==2.34.2
 s3transfer==0.17.0
@@ -313,8 +307,7 @@ pydantic_core==2.46.4
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
-pytz==2026.2
-pywin32==311
+pytz==2024.1
 PyYAML==6.0.3
 requests==2.34.2
 s3transfer==0.17.0
