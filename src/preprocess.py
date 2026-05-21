@@ -1,7 +1,11 @@
 from pathlib import Path
-import pandas as pd
-import numpy as np
+import tempfile
+
 import mlflow
+import numpy as np
+import pandas as pd
+
+from paths import METADATA_DIR, RUN_ID_FILE, WINDOW_DATA_DIR
 
 def time_bucket(hour: int):
     if 0 <= hour <= 3:
@@ -85,11 +89,7 @@ def preprocess(df):
 
     return agg_df
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-DATA_DIR = BASE_DIR / "windowData"
-
-files = sorted(DATA_DIR.glob("*.parquet"))
+files = sorted(WINDOW_DATA_DIR.glob("*.parquet"))
 
 if __name__ == "__main__":
 
@@ -107,31 +107,21 @@ if __name__ == "__main__":
     train = df[df["date"] <= split_date]
     test = df[df["date"] > split_date]
 
-    train.to_parquet("trainData.parquet")
-    test.to_parquet("testData.parquet")
+    METADATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    with mlflow.start_run() as run:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        train_path = Path(tmpdir) / "trainData.parquet"
+        test_path = Path(tmpdir) / "testData.parquet"
+        train.to_parquet(train_path)
+        test.to_parquet(test_path)
 
-        mlflow.log_artifact(
-            "trainData.parquet",
-            artifact_path="datasets/intermediate"
-        )
+        with mlflow.start_run() as run:
+            mlflow.log_artifact(str(train_path), artifact_path="datasets/intermediate")
+            mlflow.log_artifact(str(test_path), artifact_path="datasets/intermediate")
+            run_id = run.info.run_id
 
-        mlflow.log_artifact(
-            "testData.parquet",
-            artifact_path="datasets/intermediate"
-        )
+        RUN_ID_FILE.write_text(run_id, encoding="utf-8")
+        print(f"MLflow run_id: {run_id}")
+        print(f"Saved run id to {RUN_ID_FILE}")
 
-        run_id = run.info.run_id
-
-        print(run_id)
-
-    print("Parquet logged")
-
-    RUN_ID_FILE = Path("metadata/current_run_id.txt")
-
-    def save_run_id(run_id: str):
-        RUN_ID_FILE.parent.mkdir(exist_ok=True)
-
-        with open(RUN_ID_FILE, "w") as f:
-            f.write(run_id)
+    print("Parquet logged to MLflow")

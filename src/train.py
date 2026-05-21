@@ -1,32 +1,35 @@
-import joblib
-from xgboost import XGBRegressor
-from sklearn.model_selection import TimeSeriesSplit, RandomizedSearchCV
-from sklearn.metrics import mean_absolute_error
-from pathlib import Path
-import pandas as pd
-from pathlib import Path
-import os
 import sys
-import mlflow
 from datetime import datetime
 
-RUN_ID_FILE = Path("metadata/current_run_id.txt")
+import joblib
+import mlflow
+import pandas as pd
+from sklearn.metrics import mean_absolute_error
+from sklearn.model_selection import RandomizedSearchCV, TimeSeriesSplit
+from xgboost import XGBRegressor
+
+from paths import MODELS_DIR, RUN_ID_FILE
+
+
 def load_run_id() -> str:
-    with open(RUN_ID_FILE, "r") as f:
-        return f.read().strip()
+    if not RUN_ID_FILE.exists():
+        raise FileNotFoundError(
+            f"Missing {RUN_ID_FILE}. Run preprocess first."
+        )
+    return RUN_ID_FILE.read_text(encoding="utf-8").strip()
 
-id = load_run_id()
 
+run_id = load_run_id()
 client = mlflow.tracking.MlflowClient()
 
 train_path = client.download_artifacts(
-    run_id=id,
-    path="datasets/intermediate/trainData.parquet"
+    run_id=run_id,
+    path="datasets/intermediate/trainData.parquet",
 )
 
 test_path = client.download_artifacts(
-    run_id=id,
-    path="datasets/intermediate/testData.parquet"
+    run_id=run_id,
+    path="datasets/intermediate/testData.parquet",
 )
 
 train = pd.read_parquet(train_path)
@@ -45,11 +48,10 @@ param_dist = {
     "max_depth": [4, 6, 8],
     "learning_rate": [0.01, 0.05, 0.1],
     "subsample": [0.8, 1.0],
-    "colsample_bytree": [0.8, 1.0]
+    "colsample_bytree": [0.8, 1.0],
 }
 
 tscv = TimeSeriesSplit(n_splits=3)
-
 model = XGBRegressor(random_state=42)
 
 search = RandomizedSearchCV(
@@ -59,26 +61,23 @@ search = RandomizedSearchCV(
     cv=tscv,
     scoring="neg_mean_absolute_error",
     verbose=1,
-    n_jobs=-1
+    n_jobs=-1,
 )
 
 search.fit(X_train, y_train)
-
 best_model = search.best_estimator_
 
 y_pred = best_model.predict(X_test)
-
 mae = mean_absolute_error(y_test, y_pred)
 print("MAE:", mae)
 
-if(mae < req_accuracy):
-    print(f"The model has low accuracy hence not saved")
+if mae < req_accuracy:
+    print("The model has low accuracy hence not saved")
     sys.exit(0)
 
 print("Model accepted")
 
 current_date = datetime.now()
-
 year = current_date.year
 month = current_date.month
 
@@ -88,9 +87,6 @@ if month == 12:
 else:
     month += 1
 
-OUTPUT_DIR = "models"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-joblib.dump(best_model, f"{OUTPUT_DIR}/demand_model_{year}-{month:02d}.pkl")
-
-print("Model saved")
+MODELS_DIR.mkdir(parents=True, exist_ok=True)
+joblib.dump(best_model, MODELS_DIR / f"demand_model_{year}-{month:02d}.pkl")
+print(f"Model saved to {MODELS_DIR}")

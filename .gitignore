@@ -2,3 +2,10 @@ data/
 taxiPredictionEnv/
 __pycache__/
 .env/
+metadata/
+mlflow/
+mlflow.db
+logs/
+
+# MinIO local secrets
+minio/.env
