@@ -3,6 +3,7 @@ import tempfile
 import numpy as np
 import pandas as pd
 import boto3
+import os
 
 def time_bucket(hour: int):
     if 0 <= hour <= 3:
