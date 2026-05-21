@@ -5,10 +5,9 @@ import os
 import tempfile
 import shutil
 import joblib
-import mlflow
 import pandas as pd
-from sklearn.metrics import mean_absolute_error
-from sklearn.model_selection import RandomizedSearchCV, TimeSeriesSplit
+from scikit-learn.metrics import mean_absolute_error
+from scikit-learn.model_selection import RandomizedSearchCV, TimeSeriesSplit
 from xgboost import XGBRegressor
 
 

@@ -3,7 +3,6 @@ import tempfile
 import numpy as np
 import pandas as pd
 import boto3
-from paths import METADATA_DIR, RUN_ID_FILE, WINDOW_DATA_DIR
 
 def time_bucket(hour: int):
     if 0 <= hour <= 3:
@@ -18,6 +17,8 @@ def time_bucket(hour: int):
         return 'evening'
     else:
         return 'night'
+
+WINDOW_DATA_DIR = Path(os.environ.get("PIPELINE_TEMP_DIR", tempfile.gettempdir())) / "windowData"
 
 def preprocess(df):
 
