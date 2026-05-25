@@ -31,7 +31,7 @@ jobs:
       # Reuse processed/ across runs when only train.py (or other non-data code) changes.
       # Key changes when raw window files or preprocess logic changes → cache miss → rebuild.
       - name: Update Window Data
-        uses: python src/ingest.py
+        run: python src/ingest.py
 
       - name: Build features
         run: python src/preprocess.py
