@@ -1,5 +1,4 @@
 from pathlib import Path
-import shutil
 import boto3
 from datetime import datetime
 import tempfile

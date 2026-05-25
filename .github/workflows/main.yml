@@ -30,13 +30,10 @@ jobs:
 
       # Reuse processed/ across runs when only train.py (or other non-data code) changes.
       # Key changes when raw window files or preprocess logic changes → cache miss → rebuild.
-      - name: Restore processed features cache
-        uses: actions/cache@v4
-        with:
-          path: processed/
-          key: features-${{ hashFiles('windowData/**', 'src/preprocess.py') }}
+      - name: Update Window Data
+        uses: python src/ingest.py
 
-      - name: Build features (skip if fingerprint matches)
+      - name: Build features
         run: python src/preprocess.py
 
       - name: Train model
