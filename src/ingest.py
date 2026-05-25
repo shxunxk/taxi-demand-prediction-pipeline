@@ -2,6 +2,8 @@ from pathlib import Path
 import shutil
 import boto3
 from datetime import datetime
+import tempfile
+import os
 
 WINDOW_DATA_DIR = Path(os.environ.get("PIPELINE_TEMP_DIR", tempfile.gettempdir())) / "windowData"
 WINDOW_DATA_DIR.mkdir(parents=True, exist_ok=True)
