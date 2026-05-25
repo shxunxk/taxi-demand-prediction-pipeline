@@ -89,9 +89,9 @@ def preprocess(df):
 
     return agg_df
 
-files = sorted(WINDOW_DATA_DIR.glob("*.parquet"))
-
 if __name__ == "__main__":
+
+    files = sorted(WINDOW_DATA_DIR.glob("*.parquet"))
 
     processed_list = []
 
@@ -111,5 +111,5 @@ if __name__ == "__main__":
 
     INTERMEDIATE_DIR.mkdir(parents=True, exist_ok=True)
 
-    train_df.to_csv(INTERMEDIATE_DIR / "train.csv", index=False)
-    test_df.to_csv(INTERMEDIATE_DIR / "test.csv", index=False)
+    train.to_csv(INTERMEDIATE_DIR / "train.csv", index=False)
+    test.to_csv(INTERMEDIATE_DIR / "test.csv", index=False)
