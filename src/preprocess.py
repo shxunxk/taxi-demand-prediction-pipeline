@@ -19,7 +19,6 @@ def time_bucket(hour: int):
     else:
         return 'night'
 
-WINDOW_DATA_DIR = Path(os.environ.get("PIPELINE_TEMP_DIR", tempfile.gettempdir())) / "windowData"
 
 def preprocess(df):
 
@@ -90,6 +89,8 @@ def preprocess(df):
     return agg_df
 
 if __name__ == "__main__":
+
+    WINDOW_DATA_DIR = Path(os.environ.get("PIPELINE_TEMP_DIR", tempfile.gettempdir())) / "windowData"
 
     files = sorted(WINDOW_DATA_DIR.glob("*.parquet"))
 
