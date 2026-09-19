@@ -1,11 +1,45 @@
+# Local data, environments, and runtime state
 data/
 taxiPredictionEnv/
 __pycache__/
-.env/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
 metadata/
 mlflow/
 mlflow.db
 logs/
+tmp/
+windowData/
+intermediate/
+models/
 
-# MinIO local secrets
-minio/.env
+# Local configuration and secrets; keep example templates tracked
+.env
+.env.*
+!.env.example
+!.env.template
+
+# Local GitHub Actions runner: credentials, logs, binaries, and workspaces
+actions-runner/
+
+# Credentials, certificates, and private keys
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+*credentials*
+*secret*
+*password*
+
+# Build and tooling output
+.coverage
+coverage.xml
+htmlcov/
+dist/
+build/
+.mypy_cache/
+.ruff_cache/
+.tox/

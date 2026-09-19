@@ -10,6 +10,7 @@ from datetime import datetime
 
 PIPELINE_DATA_DIR = "/opt/airflow"
 ML_REPO_DIR = "/opt/airflow/ml-repo"
+LOCAL_SRC_DIR = "/opt/airflow/local-src"
 SYNC_SCRIPT = "/opt/airflow/dags/scripts/sync_ml_repo.sh"
 
 PIPELINE_ENV = f"""
@@ -33,6 +34,7 @@ with DAG(
             set -e
             {PIPELINE_ENV}
             bash {SYNC_SCRIPT}
+            cp -r {LOCAL_SRC_DIR}/. "$ML_REPO_DIR/src/"
         """,
     )
 

@@ -101,6 +101,12 @@ if __name__ == "__main__":
         df = preprocess(df)
         processed_list.append(df)
 
+    if not processed_list:
+        raise RuntimeError(
+            f"No Parquet files found in {WINDOW_DATA_DIR}. "
+            "Run ingestion successfully before preprocessing."
+        )
+
     df = pd.concat(processed_list, ignore_index=True)
     df = df.sort_values("date")
     split_date = df["date"].quantile(0.8)
